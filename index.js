@@ -88,6 +88,11 @@ app.delete('/expenses/:id', (req, res) => {
   res.status(204).send();
 });
 
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong on the server' });
+});
+
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
 });
