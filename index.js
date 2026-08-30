@@ -16,12 +16,24 @@ app.get('/expenses', (req, res) => {
 
 app.post('/todos', (req, res) => {
   const { task } = req.body;
+  if (!task || typeof task !== 'string' || task.trim() === '') {
+    return res.status(400).json({ error: 'Task is required and must be a non-empty string' });
+  }
   const result = db.prepare('INSERT INTO todos (task) VALUES (?)').run(task);
   res.status(201).json({ id: result.lastInsertRowid, task, done: 0 });
 });
 
 app.post('/expenses', (req, res) => {
   const { amount, category, date } = req.body;
+  if (typeof amount !== 'number' || amount <= 0) {
+    return res.status(400).json({ error: 'Amount must be a positive number' });
+  }
+  if (!category || typeof category !== 'string' || category.trim() === '') {
+    return res.status(400).json({ error: 'Category is required' });
+  }
+  if (!date || typeof date !== 'string' || date.trim() === '') {
+    return res.status(400).json({ error: 'Date is required' });
+  }
   const result = db.prepare('INSERT INTO expenses (amount, category, date) VALUES (?, ?, ?)').run(amount, category, date);
   res.status(201).json({ id: result.lastInsertRowid, amount, category, date });
 });
