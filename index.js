@@ -41,26 +41,50 @@ app.post('/expenses', (req, res) => {
 app.put('/todos/:id', (req, res) => {
   const { id } = req.params;
   const { task, done } = req.body;
-  db.prepare('UPDATE todos SET task = ?, done = ? WHERE id = ?').run(task, done, id);
+  if (!task || typeof task !== 'string' || task.trim() === '') {
+    return res.status(400).json({ error: 'Task is required and must be a non-empty string' });
+  }
+  const result = db.prepare('UPDATE todos SET task = ?, done = ? WHERE id = ?').run(task, done, id);
+  if (result.changes === 0) {
+    return res.status(404).json({ error: 'Todo not found' });
+  }
   res.json({ id: Number(id), task, done });
 });
 
 app.delete('/todos/:id', (req, res) => {
   const { id } = req.params;
-  db.prepare('DELETE FROM todos WHERE id = ?').run(id);
+  const result = db.prepare('DELETE FROM todos WHERE id = ?').run(id);
+  if (result.changes === 0) {
+    return res.status(404).json({ error: 'Todo not found' });
+  }
   res.status(204).send();
 });
 
 app.put('/expenses/:id', (req, res) => {
   const { id } = req.params;
   const { amount, category, date } = req.body;
-  db.prepare('UPDATE expenses SET amount = ?, category = ?, date = ? WHERE id = ?').run(amount, category, date, id);
+   if (typeof amount !== 'number' || amount <= 0) {
+    return res.status(400).json({ error: 'Amount must be a positive number' });
+  }
+  if (!category || typeof category !== 'string' || category.trim() === '') {
+    return res.status(400).json({ error: 'Category is required' });
+  }
+  if (!date || typeof date !== 'string' || date.trim() === '') {
+    return res.status(400).json({ error: 'Date is required' });
+  }
+  const result = db.prepare('UPDATE expenses SET amount = ?, category = ?, date = ? WHERE id = ?').run(amount, category, date, id);
+  if (result.changes === 0) {
+    return res.status(404).json({ error: 'Expenses not found' });
+  }
   res.json({ id: Number(id), amount, category, date });
 });
 
 app.delete('/expenses/:id', (req, res) => {
   const { id } = req.params;
-  db.prepare('DELETE FROM expenses WHERE id = ?').run(id);
+  const result = db.prepare('DELETE FROM expenses WHERE id = ?').run(id);
+  if (result.changes === 0) {
+    return res.status(404).json({ error: 'Expenses not found' });
+  }
   res.status(204).send();
 });
 
