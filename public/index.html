@@ -13,6 +13,11 @@
         </form>
         <h1>My Expenses</h1>
         <ul id="expense-list"></ul>
+        <form id="expense-form">
+            <input type="text" id="expense-input" placeholder = "Add expense category" required>
+            <input type="text" id="expense-amount-input" placeholder = "Add expense amount" required>
+            <button type="submit">Add new expense</button>
+        </form>
         <script>
             async function loadTodos() {
                 const response = await fetch('http://localhost:4000/todos');
@@ -25,6 +30,18 @@
                     const checkBox = document.createElement('input');
                     checkBox.type = 'checkbox';
                     checkBox.checked = todo.done === 1;
+
+                    checkBox.addEventListener('change', async() =>{
+                        await fetch(`http://localhost:4000/todos/${todo.id}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                task: todo.task,
+                                done: checkBox.checked? 1:0
+                            })
+                        });
+                        loadTodos();
+                    });
 
                     const label = document.createElement('span');
                     label.textContent = todo.task;
@@ -62,6 +79,26 @@
                 list.appendChild(li);
             });
             }
+
+            document.getElementById('expense-form').addEventListener('submit', async(event) =>{
+                event.preventDefault();
+                const input = document.getElementById('expense-input');
+                const category = input.value;
+                const input_amount = document.getElementById('expense-amount-input');
+                const amount = Number(input_amount.value);
+                const today = new Date().toISOString().split('T')[0];
+
+                await fetch('http://localhost:4000/expenses', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({category, amount, date: today})
+                });
+
+                input.value='';
+                input_amount.value='';
+                loadExpenses();
+            })
+
             loadTodos();
             loadExpenses();
         </script>
