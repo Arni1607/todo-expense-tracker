@@ -7,6 +7,10 @@
     <body>
         <h1> My Todos</h1>
         <ul id="todo-list"></ul>
+        <form id="todo-form">
+            <input type="text" id ="todo-input" placeholder="new task" required>
+            <button type="submit">Add To-do</button>
+        </form>
         <h1>My Expenses</h1>
         <ul id="expense-list"></ul>
         <script>
@@ -30,6 +34,20 @@
                     list.appendChild(li);                    
                 });
             }
+            document.getElementById('todo-form').addEventListener('submit', async(event) =>{
+                event.preventDefault();
+                const input = document.getElementById('todo-input');
+                const task = input.value;
+
+                await fetch('http://localhost:4000/todos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({task})
+                });
+
+                input.value = '';
+                loadTodos();
+            });
 
             async function loadExpenses() {
             const response = await fetch('http://localhost:4000/expenses');
