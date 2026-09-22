@@ -1,21 +1,26 @@
-const Database = require('better-sqlite3');
-const db = new Database('tracker.db');
+const { Pool } = require('pg');
 
-db.exec(`
-  CREATE TABLE IF NOT EXISTS todos (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    task TEXT NOT NULL,
-    done INTEGER DEFAULT 0
-  )
-`);
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
 
-db.exec(`
-  CREATE TABLE IF NOT EXISTS expenses (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    amount REAL NOT NULL,
-    category TEXT NOT NULL,
-    date TEXT NOT NULL
-  )
-`);
+async function initDb() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS todos (
+      id SERIAL PRIMARY KEY,
+      task TEXT NOT NULL,
+      done INTEGER DEFAULT 0
+    )
+  `);
 
-module.exports = db;
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS expenses (
+      id SERIAL PRIMARY KEY,
+      amount REAL NOT NULL,
+      category TEXT NOT NULL,
+      date TEXT NOT NULL
+    )
+  `);
+}
+
+module.exports = { pool, initDb };
