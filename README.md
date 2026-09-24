@@ -1,3 +1,6 @@
+**Live API:** https://todo-expense-tracker.onrender.com
+> Note: hosted on Render's free tier — the first request after a period of inactivity may take 30-60 seconds while the service spins back up.
+
 # To-Do & Expense Tracker API
 
 A simple REST API to manage to-do items and expenses, built from scratch to learn backend fundamentals — no prior software engineering experience going in.
